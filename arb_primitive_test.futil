@@ -1,0 +1,41 @@
+// RUN: fud e arb_primitive_test.futil --to dat -s verilog.data arb_data.json
+
+import "primitives/core.futil";
+import "primitives/memories.futil";
+import "primitives/arbiter.futil";
+
+component main(go: 1) -> (done: 1) {
+  cells {
+    @external mem = seq_mem_d1(32, 16, 4);
+    @external arbiter = arbiter_2(32, 16, 4);
+  }
+  wires {
+    // Arbiter inputs
+    arbiter.mem_write_done = mem.write_done;
+    arbiter.mem_read_done = mem.read_done;
+    // Arbiter outputs
+    mem.write_en = arbiter.mem_write_en;
+    mem.read_en = arbiter.mem_read_en;
+    mem.addr0 = arbiter.mem_addr;
+    mem.in = arbiter.mem_in;
+
+    group write_port0 {
+        arbiter.in0 = 32'd1337;
+        arbiter.write_en0 = 1'b1;
+        arbiter.addr0 = 4'd10;
+        write_port0[done] = arbiter.write_done0;
+    }
+
+    group write_port1 {
+        arbiter.in1 = 32'd1339;
+        arbiter.write_en1 = 1'b1;
+        arbiter.addr1 = 4'd11;
+        write_port1[done] = arbiter.write_done1;
+    }
+
+  }
+  control { par {
+    write_port0;
+    write_port1;
+  }}
+}
