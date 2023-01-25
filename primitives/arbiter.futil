@@ -1,9 +1,10 @@
-extern "memories.sv" {
+extern "arbiter.sv" {
   primitive arbiter_2[WIDTH, SIZE, IDX_SIZE](
     @clk clk: 1,
     @reset reset: 1,
     addr0: IDX_SIZE,
     addr1: IDX_SIZE,
+    mem_out: WIDTH,
     // Write ports
     @write_together(1) @static(1) @go(1) write_en0: 1,
     @write_together(1) in0: WIDTH,
