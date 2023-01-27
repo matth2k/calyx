@@ -26,16 +26,17 @@ component main(go: 1) -> (done: 1) {
         write_port0[done] = arbiter.write_done0;
     }
 
-    group write_port1 {
-        arbiter.in1 = 32'd1339;
-        arbiter.write_en1 = 1'b1;
+    group read_port1 {
+        arbiter.read_en1 = 1'b1;
         arbiter.addr1 = 4'd11;
-        write_port1[done] = arbiter.write_done1;
+        read_port1[done] = arbiter.read_done1;
     }
 
   }
-  control { par {
-    write_port0;
-    write_port1;
-  }}
+  control {
+    seq {
+        write_port0;
+        read_port1;
+    }
+  }
 }

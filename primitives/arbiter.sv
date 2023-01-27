@@ -18,8 +18,8 @@ module arbiter_2_sdp #(
    input wire logic read_en1,
    // Dynamic port memory
    input wire logic mem_write_done,
-   input wire logic mem_read_done
-   input wire [WIDTH-1:0] mem_out,
+   input wire logic mem_read_done,
+   input wire logic [WIDTH-1:0] mem_out,
 
    output logic [WIDTH-1:0] out0,
    output logic [WIDTH-1:0] out1,
@@ -106,6 +106,16 @@ module arbiter_2_sdp #(
         end
       end
     end
+  end
+
+  int fd;
+  initial begin
+    fd = $fopen("/home/matth2k/calyx/arb_out.log", "w");
+  end
+  always_ff @(posedge clk) begin
+    $fdisplay(fd, "port0_go: %b, port1_go: %b", write_en0 | read_en0, write_en1 | read_en1);
+    $fdisplay(fd, "port0_done: %b, port1_done: %b", write_done0 | read_done0, write_done1 | read_done1);
+    $fdisplay(fd, "read_fsm: %d, write_fsm: %d", read_fsm, write_fsm);
   end
 
 endmodule
