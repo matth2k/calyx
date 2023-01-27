@@ -1,18 +1,18 @@
 extern "arbiter.sv" {
-  primitive arbiter_2[WIDTH, SIZE, IDX_SIZE](
+  primitive arbiter_2_sdp[WIDTH, SIZE, IDX_SIZE](
     @clk clk: 1,
     @reset reset: 1,
     addr0: IDX_SIZE,
     addr1: IDX_SIZE,
     mem_out: WIDTH,
     // Write ports
-    @write_together(1) @static(1) @go(1) write_en0: 1,
+    @write_together(1) @go(1) write_en0: 1,
     @write_together(1) in0: WIDTH,
-    @write_together(2) @static(1) @go(2) write_en1: 1,
+    @write_together(2) @go(2) write_en1: 1,
     @write_together(2) in1: WIDTH,
     // Read ports
-    @static(1) @go(3) read_en0: 1,
-    @static(1) @go(4) read_en1: 1,
+    @go(3) read_en0: 1,
+    @go(4) read_en1: 1,
     // Dynamic port memory
     mem_write_done: 1,
     mem_read_done: 1

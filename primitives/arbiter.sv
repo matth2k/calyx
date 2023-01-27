@@ -38,7 +38,7 @@ module arbiter_2_sdp #(
   
   logic preference;
 
-  wire logic [1:0] fsm_next;
+  wire logic [1:0] fsm_next = (preference && port0_req)? 2'd1 : port1_req? 2'd2 : port0_req? 2'd1 : 2'd0;
   logic [1:0] fsm_current;
   wire logic port0_req = read_en0 | write_en0;
   wire logic port1_req = read_en1 | write_en1;
@@ -47,22 +47,10 @@ module arbiter_2_sdp #(
   wire logic arbiter_idle = fsm_current == 2'd0;
   wire logic arbiter_busy = ~arbiter_idle;
 
-
-  always_comb begin
-    if (preference && port0_req)
-      fsm_next = 2'd1;
-    else if (port1_req)
-      fsm_next = 2'd2;
-    else if (port0_req)
-      fsm_next = 2'd1;
-    else
-      fsm_next = 2'd0;
-  end
-
-  mem_read_en = (port0_busy && read_en0) || (port1_busy && read_en1);
-  mem_write_en = (port0_busy && write_en0) || (port1_busy && write_en1);
-  mem_addr = port0_busy? addr0 : port1_busy? addr1 : 'd0;
-  mem_in = (port0_busy && write_en0)? addr0 : (port1_busy && write_en1)? addr1 : 'd0;
+  assign mem_read_en = (port0_busy && read_en0) || (port1_busy && read_en1);
+  assign mem_write_en = (port0_busy && write_en0) || (port1_busy && write_en1);
+  assign mem_addr = port0_busy? addr0 : port1_busy? addr1 : 'd0;
+  assign mem_in = (port0_busy && write_en0)? in0 : (port1_busy && write_en1)? in1 : 'd0;
   
   always_ff @(posedge clk) begin
     if (reset) begin
@@ -101,7 +89,7 @@ module arbiter_2_sdp #(
           out1 <= mem_out;
           fsm_current <= 'd0;
         end else if (mem_write_done) begin
-          write_done0 <= 1'b1;
+          write_done1 <= 1'b1;
           fsm_current <= 'd0;
         end
       end
@@ -115,7 +103,7 @@ module arbiter_2_sdp #(
   always_ff @(posedge clk) begin
     $fdisplay(fd, "port0_go: %b, port1_go: %b", write_en0 | read_en0, write_en1 | read_en1);
     $fdisplay(fd, "port0_done: %b, port1_done: %b", write_done0 | read_done0, write_done1 | read_done1);
-    $fdisplay(fd, "read_fsm: %d, write_fsm: %d", read_fsm, write_fsm);
+    $fdisplay(fd, "mem_go: %b, mem_done: %b", mem_read_en | mem_write_en, mem_read_done | mem_write_done);
   end
 
 endmodule

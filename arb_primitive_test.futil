@@ -7,7 +7,7 @@ import "primitives/arbiter.futil";
 component main(go: 1) -> (done: 1) {
   cells {
     @external mem = seq_mem_d1(32, 16, 4);
-    @external arbiter = arbiter_2(32, 16, 4);
+    @external arbiter = arbiter_2_sdp(32, 16, 4);
   }
   wires {
     // Arbiter inputs
@@ -26,17 +26,18 @@ component main(go: 1) -> (done: 1) {
         write_port0[done] = arbiter.write_done0;
     }
 
-    group read_port1 {
-        arbiter.read_en1 = 1'b1;
-        arbiter.addr1 = 4'd11;
-        read_port1[done] = arbiter.read_done1;
+    group write_port1 {
+        arbiter.in1 = 32'd1338;
+        arbiter.write_en1 = 1'b1;
+        arbiter.addr1 = 4'd10;
+        write_port1[done] = arbiter.write_done1;
     }
 
   }
   control {
-    seq {
+    par {
         write_port0;
-        read_port1;
+        write_port1;
     }
   }
 }
